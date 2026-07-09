@@ -1,0 +1,15 @@
+# Backend
+backend/target/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE / local
+.idea/
+*.iml
+.vscode/
+.claude/
+
+# Logs
+*.log

@@ -1,0 +1,22 @@
+spring:
+  flyway:
+    # Nos testes o esquema é gerado pelo Hibernate direto no H2 (create-drop)
+    enabled: false
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+app:
+  jwt:
+    secret: chave-de-teste-para-tokens-jwt-desafio-sea-tecnologia-2026
+    expiration-ms: 3600000
+  viacep:
+    url: https://viacep.com.br/ws
+  cors:
+    allowed-origins: http://localhost:5173

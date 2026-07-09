@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sea-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sea_clientes
+      MYSQL_USER: sea
+      MYSQL_PASSWORD: sea123
+    ports:
+      # 3307 no host para não conflitar com um MySQL local instalado na 3306
+      - "3307:3306"
+    volumes:
+      - sea_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sea_mysql_data:
