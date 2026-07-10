@@ -13,9 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * Integração com o serviço público ViaCEP (https://viacep.com.br).
- */
 @Service
 public class CepService {
 

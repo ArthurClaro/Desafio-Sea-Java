@@ -24,7 +24,6 @@ public final class Mascaras {
         return valor.replaceAll("\\D", "");
     }
 
-    /** 12345678901 -> 123.456.789-01 */
     public static String formatarCpf(String cpf) {
         if (cpf == null || cpf.length() != 11) {
             return cpf;
@@ -32,7 +31,6 @@ public final class Mascaras {
         return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9);
     }
 
-    /** 70714900 -> 70714-900 */
     public static String formatarCep(String cep) {
         if (cep == null || cep.length() != 8) {
             return cep;

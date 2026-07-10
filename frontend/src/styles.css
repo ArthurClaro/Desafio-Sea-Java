@@ -1,9 +1,4 @@
-/* ============================================================
-   SEA · Gestão de Clientes — design system
-   Conceito: registro de precisão. Superfícies calmas, um traço
-   fino da marca e identificadores estruturados em monoespaçada.
-   Sem dependências de fonte externa (build self-contained).
-   ============================================================ */
+/* SEA · Gestão de Clientes — design system (self-contained, sem fontes externas) */
 
 :root {
   /* Cores */
@@ -127,7 +122,6 @@ a {
   letter-spacing: -0.01em;
 }
 
-/* Marca: quadrado arredondado com a inicial — sem alterar o JSX */
 .topbar__brand::before {
   content: 'S';
   display: grid;
@@ -212,7 +206,6 @@ a {
   justify-items: center;
 }
 
-/* Ícone de estado vazio, puro CSS */
 .vazio::before {
   content: '';
   width: 44px;
@@ -571,7 +564,6 @@ a {
   letter-spacing: -0.02em;
 }
 
-/* Mesma marca do topbar, agora na tela de acesso */
 .login__titulo::before {
   content: 'S';
   display: grid;
