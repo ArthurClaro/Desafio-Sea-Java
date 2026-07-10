@@ -11,6 +11,11 @@ const TIPOS_TELEFONE = [
 
 const enderecoVazio = { cep: '', logradouro: '', bairro: '', cidade: '', uf: '', complemento: '' }
 
+// Ids estáveis para as linhas dinâmicas — key={indice} desloca o estado dos
+// inputs quando um item é removido do meio da lista
+let proximoIdLinha = 1
+const novaLinhaId = () => proximoIdLinha++
+
 export default function ClienteForm() {
   const { id } = useParams()
   const editando = Boolean(id)
@@ -19,8 +24,8 @@ export default function ClienteForm() {
   const [nome, setNome] = useState('')
   const [cpf, setCpf] = useState('')
   const [endereco, setEndereco] = useState(enderecoVazio)
-  const [telefones, setTelefones] = useState([{ tipo: 'CELULAR', numero: '' }])
-  const [emails, setEmails] = useState([''])
+  const [telefones, setTelefones] = useState(() => [{ id: novaLinhaId(), tipo: 'CELULAR', numero: '' }])
+  const [emails, setEmails] = useState(() => [{ id: novaLinhaId(), valor: '' }])
 
   const [buscandoCep, setBuscandoCep] = useState(false)
   const [avisoCep, setAvisoCep] = useState('')
@@ -37,8 +42,8 @@ export default function ClienteForm() {
         setNome(data.nome)
         setCpf(data.cpf)
         setEndereco({ ...data.endereco, complemento: data.endereco.complemento || '' })
-        setTelefones(data.telefones.map((t) => ({ tipo: t.tipo, numero: t.numero })))
-        setEmails(data.emails)
+        setTelefones(data.telefones.map((t) => ({ id: novaLinhaId(), tipo: t.tipo, numero: t.numero })))
+        setEmails(data.emails.map((email) => ({ id: novaLinhaId(), valor: email })))
       })
       .catch(() => setErro('Não foi possível carregar o cliente.'))
       .finally(() => setCarregando(false))
@@ -74,11 +79,11 @@ export default function ClienteForm() {
     }
   }
 
-  function mudarTelefone(indice, campo, valor) {
+  function mudarTelefone(id, campo, valor) {
     setTelefones((atuais) =>
-      atuais.map((t, i) => {
-        if (i !== indice) return t
-        if (campo === 'tipo') return { tipo: valor, numero: maskTelefone(valor, t.numero) }
+      atuais.map((t) => {
+        if (t.id !== id) return t
+        if (campo === 'tipo') return { ...t, tipo: valor, numero: maskTelefone(valor, t.numero) }
         return { ...t, numero: maskTelefone(t.tipo, valor) }
       }),
     )
@@ -94,8 +99,8 @@ export default function ClienteForm() {
       nome: nome.trim(),
       cpf,
       endereco: { ...endereco, complemento: endereco.complemento.trim() || null },
-      telefones,
-      emails: emails.map((email) => email.trim()).filter(Boolean),
+      telefones: telefones.map(({ tipo, numero }) => ({ tipo, numero })),
+      emails: emails.map(({ valor }) => valor.trim()).filter(Boolean),
     }
 
     try {
@@ -114,7 +119,7 @@ export default function ClienteForm() {
     }
   }
 
-  if (carregando) return <p className="texto-suave">Carregando…</p>
+  if (carregando) return <p className="texto-suave" role="status" aria-live="polite">Carregando…</p>
 
   return (
     <section className="form-pagina">
@@ -126,7 +131,7 @@ export default function ClienteForm() {
       </div>
 
       {erro && (
-        <div className="alerta alerta--erro">
+        <div className="alerta alerta--erro" role="alert">
           <strong>{erro}</strong>
           {Object.keys(errosCampos).length > 0 && (
             <ul>
@@ -198,7 +203,7 @@ export default function ClienteForm() {
               />
             </label>
           </div>
-          {avisoCep && <div className="alerta alerta--aviso">{avisoCep}</div>}
+          {avisoCep && <div className="alerta alerta--aviso" role="status" aria-live="polite">{avisoCep}</div>}
           <div className="grade grade--3">
             <label className="campo">
               <span>Bairro *</span>
@@ -249,18 +254,18 @@ export default function ClienteForm() {
             <button
               type="button"
               className="btn btn--pequeno"
-              onClick={() => setTelefones([...telefones, { tipo: 'CELULAR', numero: '' }])}
+              onClick={() => setTelefones([...telefones, { id: novaLinhaId(), tipo: 'CELULAR', numero: '' }])}
             >
               + Adicionar telefone
             </button>
           </div>
-          {telefones.map((telefone, indice) => (
-            <div className="linha-dinamica" key={indice}>
+          {telefones.map((telefone) => (
+            <div className="linha-dinamica" key={telefone.id}>
               <label className="campo">
                 <span>Tipo</span>
                 <select
                   value={telefone.tipo}
-                  onChange={(e) => mudarTelefone(indice, 'tipo', e.target.value)}
+                  onChange={(e) => mudarTelefone(telefone.id, 'tipo', e.target.value)}
                 >
                   {TIPOS_TELEFONE.map((tipo) => (
                     <option key={tipo.valor} value={tipo.valor}>
@@ -275,7 +280,7 @@ export default function ClienteForm() {
                   type="text"
                   className="mono"
                   value={telefone.numero}
-                  onChange={(e) => mudarTelefone(indice, 'numero', e.target.value)}
+                  onChange={(e) => mudarTelefone(telefone.id, 'numero', e.target.value)}
                   placeholder={telefone.tipo === 'CELULAR' ? '(00) 00000-0000' : '(00) 0000-0000'}
                   required
                 />
@@ -283,7 +288,7 @@ export default function ClienteForm() {
               <button
                 type="button"
                 className="btn btn--pequeno btn--perigo"
-                onClick={() => setTelefones(telefones.filter((_, i) => i !== indice))}
+                onClick={() => setTelefones(telefones.filter((t) => t.id !== telefone.id))}
                 disabled={telefones.length === 1}
                 title={telefones.length === 1 ? 'Pelo menos um telefone é obrigatório' : 'Remover'}
               >
@@ -296,19 +301,23 @@ export default function ClienteForm() {
         <div className="card form-secao">
           <div className="form-secao__cabecalho">
             <h3>E-mails *</h3>
-            <button type="button" className="btn btn--pequeno" onClick={() => setEmails([...emails, ''])}>
+            <button
+              type="button"
+              className="btn btn--pequeno"
+              onClick={() => setEmails([...emails, { id: novaLinhaId(), valor: '' }])}
+            >
               + Adicionar e-mail
             </button>
           </div>
-          {emails.map((email, indice) => (
-            <div className="linha-dinamica" key={indice}>
+          {emails.map((email) => (
+            <div className="linha-dinamica" key={email.id}>
               <label className="campo linha-dinamica__principal">
                 <span>E-mail</span>
                 <input
                   type="email"
-                  value={email}
+                  value={email.valor}
                   onChange={(e) =>
-                    setEmails(emails.map((atual, i) => (i === indice ? e.target.value : atual)))
+                    setEmails(emails.map((atual) => (atual.id === email.id ? { ...atual, valor: e.target.value } : atual)))
                   }
                   placeholder="contato@exemplo.com"
                   required
@@ -317,7 +326,7 @@ export default function ClienteForm() {
               <button
                 type="button"
                 className="btn btn--pequeno btn--perigo"
-                onClick={() => setEmails(emails.filter((_, i) => i !== indice))}
+                onClick={() => setEmails(emails.filter((atual) => atual.id !== email.id))}
                 disabled={emails.length === 1}
                 title={emails.length === 1 ? 'Pelo menos um e-mail é obrigatório' : 'Remover'}
               >

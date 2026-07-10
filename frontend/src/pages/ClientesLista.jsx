@@ -49,10 +49,10 @@ export default function ClientesLista() {
         )}
       </div>
 
-      {erro && <div className="alerta alerta--erro">{erro}</div>}
+      {erro && <div className="alerta alerta--erro" role="alert">{erro}</div>}
 
       {carregando ? (
-        <p className="texto-suave">Carregando…</p>
+        <p className="texto-suave" role="status" aria-live="polite">Carregando…</p>
       ) : pagina && pagina.content.length === 0 ? (
         <div className="card vazio">
           <p>Nenhum cliente cadastrado ainda.</p>

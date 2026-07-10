@@ -18,6 +18,8 @@ http.interceptors.response.use(
     if (status === 401 && !rotaLogin) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
+      // Reload completo proposital: descarta qualquer estado em memória de um
+      // usuário cuja sessão expirou, em vez de navegar via router
       window.location.href = '/login'
     }
     return Promise.reject(error)

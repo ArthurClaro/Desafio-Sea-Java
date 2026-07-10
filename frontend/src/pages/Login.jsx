@@ -32,7 +32,7 @@ export default function Login() {
         </h1>
         <p className="login__subtitulo">Entre com sua conta para acessar o sistema</p>
 
-        {erro && <div className="alerta alerta--erro">{erro}</div>}
+        {erro && <div className="alerta alerta--erro" role="alert">{erro}</div>}
 
         <label className="campo">
           <span>Usuário</span>
