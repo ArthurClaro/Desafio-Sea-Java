@@ -3,7 +3,9 @@ package br.com.sea.desafio.service;
 import br.com.sea.desafio.domain.Cliente;
 import br.com.sea.desafio.dto.ClienteRequest;
 import br.com.sea.desafio.dto.ClienteResponse;
+import br.com.sea.desafio.dto.TelefoneRequest;
 import br.com.sea.desafio.exception.CpfDuplicadoException;
+import br.com.sea.desafio.exception.DadosInvalidosException;
 import br.com.sea.desafio.exception.RecursoNaoEncontradoException;
 import br.com.sea.desafio.mapper.ClienteMapper;
 import br.com.sea.desafio.repository.ClienteRepository;
@@ -15,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class ClienteService {
@@ -42,6 +47,7 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
+        validarDuplicidadesInternas(request);
         String cpf = Mascaras.somenteDigitos(request.getCpf());
         if (clienteRepository.existsByCpf(cpf)) {
             throw new CpfDuplicadoException();
@@ -55,6 +61,7 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponse atualizar(Long id, ClienteRequest request) {
+        validarDuplicidadesInternas(request);
         Cliente cliente = obterCliente(id);
         String cpf = Mascaras.somenteDigitos(request.getCpf());
         if (clienteRepository.existsByCpfAndIdNot(cpf, id)) {
@@ -70,6 +77,22 @@ public class ClienteService {
     public void excluir(Long id) {
         clienteRepository.delete(obterCliente(id));
         log.info("Cliente excluído: id={}", id);
+    }
+
+    /** Compara telefones e e-mails já normalizados: máscara e caixa não contam como diferença. */
+    private void validarDuplicidadesInternas(ClienteRequest request) {
+        Set<String> numeros = new HashSet<>();
+        for (TelefoneRequest telefone : request.getTelefones()) {
+            if (!numeros.add(Mascaras.somenteDigitos(telefone.getNumero()))) {
+                throw new DadosInvalidosException("Telefone duplicado para o mesmo cliente: " + telefone.getNumero());
+            }
+        }
+        Set<String> emails = new HashSet<>();
+        for (String email : request.getEmails()) {
+            if (!emails.add(email.trim().toLowerCase())) {
+                throw new DadosInvalidosException("E-mail duplicado para o mesmo cliente: " + email);
+            }
+        }
     }
 
     private Cliente obterCliente(Long id) {

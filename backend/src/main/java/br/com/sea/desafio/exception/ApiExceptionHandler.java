@@ -38,6 +38,11 @@ public class ApiExceptionHandler {
                         "Corpo da requisição inválido. Verifique o JSON enviado (tipos de telefone aceitos: RESIDENCIAL, COMERCIAL, CELULAR)."));
     }
 
+    @ExceptionHandler(DadosInvalidosException.class)
+    public ResponseEntity<Map<String, Object>> tratarDadosInvalidos(DadosInvalidosException ex) {
+        return ResponseEntity.badRequest().body(corpo(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
     @ExceptionHandler(CepInvalidoException.class)
     public ResponseEntity<Map<String, Object>> tratarCepInvalido(CepInvalidoException ex) {
         return ResponseEntity.badRequest().body(corpo(HttpStatus.BAD_REQUEST, ex.getMessage()));

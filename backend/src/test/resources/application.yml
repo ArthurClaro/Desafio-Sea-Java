@@ -20,3 +20,6 @@ app:
     url: https://viacep.com.br/ws
   cors:
     allowed-origins: http://localhost:5173
+  seed:
+    senha-admin: 123qwe!@#
+    senha-user: 123qwe123

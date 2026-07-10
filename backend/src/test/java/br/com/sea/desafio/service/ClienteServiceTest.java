@@ -7,6 +7,7 @@ import br.com.sea.desafio.dto.ClienteResponse;
 import br.com.sea.desafio.dto.EnderecoRequest;
 import br.com.sea.desafio.dto.TelefoneRequest;
 import br.com.sea.desafio.exception.CpfDuplicadoException;
+import br.com.sea.desafio.exception.DadosInvalidosException;
 import br.com.sea.desafio.exception.RecursoNaoEncontradoException;
 import br.com.sea.desafio.mapper.ClienteMapper;
 import br.com.sea.desafio.repository.ClienteRepository;
@@ -111,6 +112,31 @@ class ClienteServiceTest {
         assertThatThrownBy(() -> service.excluir(99L))
                 .isInstanceOf(RecursoNaoEncontradoException.class);
         verify(clienteRepository, never()).delete(any());
+    }
+
+    @Test
+    void criarRejeitaTelefonesDuplicadosMesmoComMascaraDiferente() {
+        ClienteRequest request = requestValido();
+        TelefoneRequest repetido = new TelefoneRequest();
+        repetido.setTipo(TipoTelefone.CELULAR);
+        repetido.setNumero("61987654321"); // mesmo número do requestValido, sem máscara
+        request.setTelefones(Arrays.asList(request.getTelefones().get(0), repetido));
+
+        assertThatThrownBy(() -> service.criar(request))
+                .isInstanceOf(DadosInvalidosException.class)
+                .hasMessageContaining("Telefone duplicado");
+        verify(clienteRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void criarRejeitaEmailsDuplicadosIgnorandoCaixa() {
+        ClienteRequest request = requestValido();
+        request.setEmails(Arrays.asList("contato@teste.com", "CONTATO@teste.com"));
+
+        assertThatThrownBy(() -> service.criar(request))
+                .isInstanceOf(DadosInvalidosException.class)
+                .hasMessageContaining("E-mail duplicado");
+        verify(clienteRepository, never()).saveAndFlush(any());
     }
 
     private ClienteRequest requestValido() {

@@ -28,4 +28,8 @@ app:
   viacep:
     url: https://viacep.com.br/ws
   cors:
-    allowed-origins: http://localhost:5173,http://localhost:3000
+    allowed-origins: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000
+  seed:
+    # Defaults exigidos pelo enunciado do desafio; sobrescreva por variável de ambiente em outros ambientes
+    senha-admin: ${SEED_SENHA_ADMIN:123qwe!@#}
+    senha-user: ${SEED_SENHA_USER:123qwe123}

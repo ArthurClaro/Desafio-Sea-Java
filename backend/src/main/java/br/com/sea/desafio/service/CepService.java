@@ -13,15 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.regex.Pattern;
-
 /**
  * Integração com o serviço público ViaCEP (https://viacep.com.br).
  */
 @Service
 public class CepService {
-
-    private static final Pattern FORMATO_ACEITO = Pattern.compile("^(\\d{8}|\\d{5}-\\d{3})$");
 
     private final RestTemplate restTemplate;
     private final String viaCepUrl;
@@ -33,7 +29,7 @@ public class CepService {
 
     public CepResponse consultar(String cep) {
         String entrada = cep == null ? null : cep.trim();
-        if (entrada == null || !FORMATO_ACEITO.matcher(entrada).matches()) {
+        if (entrada == null || !Mascaras.CEP_FORMATO_ACEITO.matcher(entrada).matches()) {
             throw new CepInvalidoException("CEP inválido: deve conter 8 dígitos");
         }
         String cepNormalizado = Mascaras.somenteDigitos(entrada);

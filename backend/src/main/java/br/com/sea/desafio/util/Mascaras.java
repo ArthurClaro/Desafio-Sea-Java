@@ -2,11 +2,16 @@ package br.com.sea.desafio.util;
 
 import br.com.sea.desafio.domain.TipoTelefone;
 
+import java.util.regex.Pattern;
+
 /**
  * Regra do desafio: dados persistidos SEM máscara e exibidos COM máscara.
  * Este utilitário concentra a normalização (remoção) e a formatação (aplicação) das máscaras.
  */
 public final class Mascaras {
+
+    /** CEP com máscara (00000-000) ou sem (8 dígitos). */
+    public static final Pattern CEP_FORMATO_ACEITO = Pattern.compile("^(\\d{8}|\\d{5}-\\d{3})$");
 
     private Mascaras() {
     }

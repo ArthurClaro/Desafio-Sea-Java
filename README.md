@@ -28,6 +28,8 @@ O backend exige `JWT_SECRET`; sem essa variavel a aplicacao nao inicia. Use uma 
 | `DB_PASSWORD` | `sea123` | Senha do MySQL |
 | `JWT_SECRET` | sem padrao | Chave HS256 para assinar tokens JWT |
 | `JWT_EXPIRATION_MS` | `3600000` | Tempo de expiracao do token |
+| `SEED_SENHA_ADMIN` | `123qwe!@#` | Senha inicial do usuario `admin` (padrao exigido pelo desafio) |
+| `SEED_SENHA_USER` | `123qwe123` | Senha inicial do usuario `user` (padrao exigido pelo desafio) |
 | `VITE_API_URL` | `http://localhost:8080` | Target do proxy do Vite em desenvolvimento |
 
 Veja `.env.example` como referencia. O Spring Boot nao carrega `.env` automaticamente; exporte as variaveis no terminal, configure a IDE ou use outro mecanismo do seu ambiente.

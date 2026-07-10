@@ -20,7 +20,13 @@ public class JwtService {
 
     public JwtService(@Value("${app.jwt.secret}") String secret,
                       @Value("${app.jwt.expiration-ms}") long expirationMs) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length < 32) {
+            // HS256 exige chave de no mínimo 256 bits (RFC 7518); falhar no startup evita WeakKeyException em runtime
+            throw new IllegalStateException(
+                    "app.jwt.secret deve ter no mínimo 32 caracteres (256 bits) para HS256; atual: " + bytes.length);
+        }
+        this.key = Keys.hmacShaKeyFor(bytes);
         this.expirationMs = expirationMs;
     }
 
